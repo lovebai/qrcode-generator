@@ -49,6 +49,9 @@ const writeStatsJson = argv.indexOf('--stats') !== -1;
 // Generate configuration
 const config = configFactory('production');
 
+config.devtool = false;
+
+
 // We require that you explicitly set browsers and do not fall back to
 // browserslist defaults.
 const { checkBrowsers } = require('react-dev-utils/browsersHelper');

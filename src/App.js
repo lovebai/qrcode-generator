@@ -3,6 +3,7 @@ import { Card, Tabs, Input, Button } from "antd";
 import QRCode from "qrcode.react";
 import html2canvas from "html2canvas";
 import { saveAs } from "file-saver";
+import {v4 as uuid} from "uuid"
 
 const { TextArea } = Input;
 
@@ -115,7 +116,7 @@ const App = () => {
     html2canvas(qrCodeNode).then(function (canvas) {
       // 提供下载链接
       canvas.toBlob(function (blob) {
-        saveAs(blob, "qrcode.png");
+        saveAs(blob, `qrcode-${uuid()}.png`);
       });
     });
   };
