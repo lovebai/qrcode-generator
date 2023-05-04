@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import { Card, Tabs, Input } from "antd";
+import { Card, Tabs, Input, Button } from "antd";
 import QRCode from "qrcode.react";
+import html2canvas from "html2canvas";
+import { saveAs } from "file-saver";
 
 const { TextArea } = Input;
 
@@ -50,7 +52,7 @@ const App = () => {
       children: (
         <div>
         <TextArea
-          rows={6}
+          rows={8}
           value={inputValue}
           onChange={handleInputChange}
           placeholder="请输入文本内容"
@@ -107,6 +109,17 @@ const App = () => {
     },
   ];
 
+    const handleSave = () => {
+    const qrCodeNode = document.getElementById("qr-code");
+    // 将 QRCode 转换成图片
+    html2canvas(qrCodeNode).then(function (canvas) {
+      // 提供下载链接
+      canvas.toBlob(function (blob) {
+        saveAs(blob, "qrcode.png");
+      });
+    });
+  };
+
   return (
     <div
       style={{
@@ -133,7 +146,19 @@ const App = () => {
                 height: "100%",
               }}
             >
-              <QRCode value={qrValue} size={256} />
+              <div
+              style={{display: "flex",flexDirection: "column",margin: "14px"
+      }}>
+                <QRCode id="qr-code" value={qrValue} size={230} />
+                <div
+                style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                marginTop: "1rem"
+              }}
+                ><Button type="primary" onClick={handleSave}>保存二维码</Button></div>
+              </div>
             </div>
           </div>
         </div>
