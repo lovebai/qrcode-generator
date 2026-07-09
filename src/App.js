@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Card, Tabs, Input, Button } from "antd";
+import { Card, Tabs, Input, Button, ConfigProvider, theme } from "antd";
 import QRCode from "qrcode.react";
 import html2canvas from "html2canvas";
 import { saveAs } from "file-saver";
-import {v4 as uuid} from "uuid"
+import { v4 as uuid } from "uuid";
 
 const { TextArea } = Input;
 
@@ -15,7 +15,10 @@ const App = () => {
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
   };
-  const handleInputChange1 = (e) => {
+  const handleSmsNumberChange = (e) => {
+    setInputValue(e.target.value);
+  };
+  const handleSmsBodyChange = (e) => {
     setTemp(e.target.value);
   };
 
@@ -24,97 +27,84 @@ const App = () => {
     setInputValue("");
   };
 
-  const handleKey4=()=>{
-    if (selectedKey==="3"){
-      return `tel:${inputValue}`
-    }else if(selectedKey==="4"){
-      // if(/^\d{3,16}$/.test(inputValue)){
-      //   setTemp(inputValue)
-      // }
-     return`sms:${inputValue}?body=${encodeURIComponent(temp)}`
-    }else {
-      return inputValue
+  const handleKey4 = () => {
+    if (selectedKey === "3") {
+      return `tel:${inputValue}`;
+    } else if (selectedKey === "4") {
+      return `sms:${inputValue}?body=${encodeURIComponent(temp)}`;
+    } else {
+      return inputValue;
     }
+  };
 
-  }
-
-  // const qrValue =
-  //   selectedKey === "3"
-  //     ? `tel:${inputValue}`
-  //     : selectedKey === "4"
-  //     ? `smsto:${inputValue}:${inputValue}`
-  //     : inputValue;
-  const qrValue = handleKey4()
+  const qrValue = handleKey4();
 
   const tabItems = [
     {
       key: "1",
-      label: "文本",
+      label: "Text",
       children: (
         <div>
-        <TextArea
-          rows={8}
-          value={inputValue}
-          onChange={handleInputChange}
-          placeholder="请输入文本内容"
-        />
+          <TextArea
+            rows={8}
+            value={inputValue}
+            onChange={handleInputChange}
+            placeholder="Enter text content"
+          />
         </div>
-        
       ),
     },
     {
       key: "2",
-      label: "链接",
+      label: "Link",
       children: (
         <div>
-        <Input
-          value={inputValue}
-          onChange={handleInputChange}
-          placeholder="请输入链接地址"
-        />
+          <Input
+            value={inputValue}
+            onChange={handleInputChange}
+            placeholder="Enter URL"
+          />
         </div>
-        
       ),
     },
     {
       key: "3",
-      label: "拨号",
+      label: "Phone",
       children: (
         <div>
-        <Input
-          value={inputValue}
-          onChange={handleInputChange}
-          placeholder="请输入电话号码"
-        />
+          <Input
+            value={inputValue}
+            onChange={handleInputChange}
+            placeholder="Enter phone number"
+          />
         </div>
-        
       ),
     },
-     {
+    {
       key: "4",
-      label: "短信",
-      disabled:false,
+      label: "SMS",
       children: (
         <div>
-        <Input
-          value={inputValue}
-          onChange={handleInputChange}
-          placeholder="请输入电话号码"
-        />
-        <TextArea rows={6} placeholder="请输入短信内容"
-        value={temp}
-        onChange={handleInputChange1}
-        style={{marginTop:'1rem'}} />
+          <Input
+            value={inputValue}
+            onChange={handleSmsNumberChange}
+            placeholder="Enter phone number"
+          />
+          <TextArea
+            rows={6}
+            placeholder="Enter message body"
+            value={temp}
+            onChange={handleSmsBodyChange}
+            style={{ marginTop: "12px" }}
+          />
         </div>
       ),
     },
   ];
 
-    const handleSave = () => {
+  const handleSave = () => {
     const qrCodeNode = document.getElementById("qr-code");
-    // 将 QRCode 转换成图片
     html2canvas(qrCodeNode).then(function (canvas) {
-      // 提供下载链接
       canvas.toBlob(function (blob) {
         saveAs(blob, `qrcode-${uuid()}.png`);
       });
@@ -122,49 +112,142 @@ const App = () => {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        margin: "24px",
+    <ConfigProvider
+      theme={{
+        algorithm: theme.defaultAlgorithm,
+        token: {
+          colorPrimary: "#007aff",
+          colorBgContainer: "#ffffff",
+          colorBgElevated: "#ffffff",
+          colorText: "#1d1d1f",
+          colorTextSecondary: "#424245",
+          colorBorder: "#d2d2d7",
+          borderRadius: 8,
+          fontFamily:
+            '"IBM Plex Mono", "Berkeley Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+        },
       }}
     >
-      <Card style={{ width: "100%" }}>
-        <div style={{ display: "flex", flexDirection: "row" }}>
-        <Tabs
-          style={{ width: "60%" }}
-          defaultActiveKey="1"
-          activeKey={selectedKey}
-          onChange={handleTabChange}
-          items={tabItems}
-        />
-        <div style={{ width: "50%", paddingLeft: "16px" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          padding: "24px",
+          minHeight: "100vh",
+          boxSizing: "border-box",
+          backgroundColor: "#ffffff",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            width: "90%",
+            /**maxWidth: "960px",**/
+          }}
+        >
+          <div style={{ marginBottom: "40px" }}>
+            <h1
+              style={{
+                color: "#1d1d1f",
+                fontSize: "28px",
+                fontWeight: 500,
+                margin: 0,
+                letterSpacing: "-0.02em",
+              }}
+            >
+              QR Code Generator
+            </h1>
+            <p
+              style={{
+                color: "#6e6e73",
+                fontSize: "14px",
+                margin: "8px 0 0 0",
+              }}
+            >
+              Generate QR codes from text, links, and phone numbers
+            </p>
+          </div>
+          <Card
+            style={{
+              width: "100%",
+              backgroundColor: "#ffffff",
+              border: "1px solid #d2d2d7",
+              borderRadius: 8,
+            }}
+          >
             <div
               style={{
                 display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "100%",
+                flexDirection: "row",
+                flexWrap: "wrap",
+                gap: "24px",
               }}
             >
+              <div style={{ flex: "1 1 300px", minWidth: 0 }}>
+                <Tabs
+                  defaultActiveKey="1"
+                  activeKey={selectedKey}
+                  onChange={handleTabChange}
+                  items={tabItems}
+                />
+              </div>
               <div
-              style={{display: "flex",flexDirection: "column",margin: "14px"
-      }}>
-                <QRCode id="qr-code" value={qrValue} size={230} />
-                <div
                 style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                marginTop: "1rem"
-              }}
-                ><Button type="primary" onClick={handleSave}>保存二维码</Button></div>
+                  flex: "0 0 auto",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  width: "100%",
+                  maxWidth: "280px",
+                  margin: "0 auto",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "20px",
+                  }}
+                >
+                  <QRCode
+                    id="qr-code"
+                    value={qrValue || " "}
+                    size={230}
+                    bgColor="#ffffff"
+                  />
+                  <Button
+                    type="primary"
+                    onClick={handleSave}
+                    style={{
+                      width: "100%",
+                      height: 40,
+                      fontSize: 14,
+                      fontWeight: 500,
+                      borderRadius: 8,
+                      fontFamily: '"IBM Plex Mono", "Berkeley Mono", ui-monospace, monospace',
+                    }}
+                  >
+                    Save QR Code
+                  </Button>
+                </div>
               </div>
             </div>
+          </Card>
+          <div
+            style={{
+              textAlign: "center",
+              marginTop: "32px",
+              color: "#86868b",
+              fontSize: "12px",
+            }}
+          >
+         Hope you have a happy day every day.  
           </div>
         </div>
-      </Card>
-    </div>
+      </div>
+    </ConfigProvider>
   );
 };
 
