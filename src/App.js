@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { Card, Tabs, Input, Button, ConfigProvider, theme } from "antd";
+import { Card, Tabs, Input, Button, Select, ConfigProvider, theme } from "antd";
 import QRCode from "qrcode.react";
 import html2canvas from "html2canvas";
 import { saveAs } from "file-saver";
 import { v4 as uuid } from "uuid";
+import BarcodeGenerator, { barcodeFormats } from "./components/BarcodeGenerator";
+import CodeDecoder from "./components/CodeDecoder";
 
 const { TextArea } = Input;
 
@@ -11,6 +13,7 @@ const App = () => {
   const [inputValue, setInputValue] = useState("");
   const [selectedKey, setSelectedKey] = useState("1");
   const [temp, setTemp] = useState("");
+  const [barcodeFormat, setBarcodeFormat] = useState("CODE128");
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
@@ -25,6 +28,7 @@ const App = () => {
   const handleTabChange = (key) => {
     setSelectedKey(key);
     setInputValue("");
+    setTemp("");
   };
 
   const handleKey4 = () => {
@@ -100,13 +104,44 @@ const App = () => {
         </div>
       ),
     },
+    {
+      key: "5",
+      label: "Barcode",
+      children: (
+        <div>
+          <Select
+            value={barcodeFormat}
+            onChange={(val) => setBarcodeFormat(val)}
+            style={{ width: "100%", marginBottom: 12 }}
+            options={barcodeFormats}
+          />
+          <Input
+            value={inputValue}
+            onChange={handleInputChange}
+            placeholder="Enter content for barcode"
+          />
+        </div>
+      ),
+    },
+    {
+      key: "6",
+      label: "Decode",
+      children: (
+        <div>
+          <CodeDecoder />
+        </div>
+      ),
+    },
   ];
 
   const handleSave = () => {
-    const qrCodeNode = document.getElementById("qr-code");
-    html2canvas(qrCodeNode).then(function (canvas) {
+    const nodeId = selectedKey === "5" ? "barcode" : "qr-code";
+    const prefix = selectedKey === "5" ? "barcode" : "qrcode";
+    const node = document.getElementById(nodeId);
+    if (!node) return;
+    html2canvas(node).then(function (canvas) {
       canvas.toBlob(function (blob) {
-        saveAs(blob, `qrcode-${uuid()}.png`);
+        saveAs(blob, `${prefix}-${uuid()}.png`);
       });
     });
   };
@@ -156,7 +191,7 @@ const App = () => {
                 letterSpacing: "-0.02em",
               }}
             >
-              QR Code Generator
+              QR Code & Barcode Generator
             </h1>
             <p
               style={{
@@ -165,7 +200,7 @@ const App = () => {
                 margin: "8px 0 0 0",
               }}
             >
-              Generate QR codes from text, links, and phone numbers
+              Generate QR codes and barcodes, or decode existing codes from images
             </p>
           </div>
           <Card
@@ -203,35 +238,44 @@ const App = () => {
                   margin: "0 auto",
                 }}
               >
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: "20px",
-                  }}
-                >
-                  <QRCode
-                    id="qr-code"
-                    value={qrValue || " "}
-                    size={230}
-                    bgColor="#ffffff"
-                  />
-                  <Button
-                    type="primary"
-                    onClick={handleSave}
+                {selectedKey !== "6" && (
+                  <div
                     style={{
-                      width: "100%",
-                      height: 40,
-                      fontSize: 14,
-                      fontWeight: 500,
-                      borderRadius: 8,
-                      fontFamily: '"IBM Plex Mono", "Berkeley Mono", ui-monospace, monospace',
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: "20px",
                     }}
                   >
-                    Save QR Code
-                  </Button>
-                </div>
+                    {selectedKey === "5" ? (
+                      <BarcodeGenerator
+                        value={inputValue}
+                        format={barcodeFormat}
+                      />
+                    ) : (
+                      <QRCode
+                        id="qr-code"
+                        value={qrValue || " "}
+                        size={230}
+                        bgColor="#ffffff"
+                      />
+                    )}
+                    <Button
+                      type="primary"
+                      onClick={handleSave}
+                      style={{
+                        width: "100%",
+                        height: 40,
+                        fontSize: 14,
+                        fontWeight: 500,
+                        borderRadius: 8,
+                        fontFamily: '"IBM Plex Mono", "Berkeley Mono", ui-monospace, monospace',
+                      }}
+                    >
+                      {selectedKey === "5" ? "Save Barcode" : "Save QR Code"}
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           </Card>

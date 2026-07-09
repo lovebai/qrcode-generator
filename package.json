@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@babel/core": "^7.16.0",
+    "@ericblade/quagga2": "^1.12.1",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
     "@svgr/webpack": "^5.5.0",
     "@testing-library/jest-dom": "^5.16.5",
@@ -34,6 +35,8 @@
     "jest": "^27.4.3",
     "jest-resolve": "^27.4.2",
     "jest-watch-typeahead": "^1.0.0",
+    "jsbarcode": "^3.12.3",
+    "jsqr": "^1.4.0",
     "mini-css-extract-plugin": "^2.4.5",
     "postcss": "^8.4.4",
     "postcss-flexbugs-fixes": "^5.0.2",
@@ -70,9 +73,11 @@
   },
   "eslintConfig": {
     "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+      "react-app"
+    ],
+    "env": {
+      "jest": true
+    }
   },
   "browserslist": {
     "production": [
@@ -86,7 +91,6 @@
       "last 1 safari version"
     ]
   },
-  "devDependencies": {},
   "jest": {
     "roots": [
       "<rootDir>/src"
